@@ -31763,6 +31763,35 @@
     "name": "米课",
     "url": "imiker.com"
   },
+  "imop": {
+    "routes": {
+      "/tianshu": {
+        "path": "/tianshu",
+        "categories": [
+          "game"
+        ],
+        "example": "/imop/tianshu",
+        "radar": [
+          {
+            "source": [
+              "t.imop.com"
+            ],
+            "target": "/tianshu"
+          }
+        ],
+        "name": "全部消息",
+        "maintainers": [
+          "zhkgo"
+        ],
+        "location": "tianshu.ts"
+      }
+    },
+    "name": "imop",
+    "url": "imop.com",
+    "zh": {
+      "name": "千橡游戏"
+    }
+  },
   "indiansinkuwait": {
     "routes": {
       "/latest": {
@@ -36921,6 +36950,39 @@
     },
     "name": "龙空",
     "url": "lkong.com"
+  },
+  "lmu": {
+    "routes": {
+      "/jobs": {
+        "path": "/jobs",
+        "name": "Job Openings",
+        "url": "lmu.de",
+        "example": "/lmu/jobs",
+        "maintainers": [
+          "StarDxxx"
+        ],
+        "categories": [
+          "university",
+          "study"
+        ],
+        "radar": [
+          {
+            "source": [
+              "www.lmu.de/en/about-lmu/working-at-lmu/job-portal/academic-staff/"
+            ],
+            "target": "/lmu/jobs"
+          }
+        ],
+        "description": "RSS feed for LMU academic staff job openings.",
+        "location": "jobs.ts"
+      }
+    },
+    "name": "Ludwig Maximilian University of Munich",
+    "url": "www.lmu.de",
+    "description": "\nThis namespace provides RSS feeds for various sections of the Ludwig Maximilian University of Munich (LMU) website, particularly for job openings in the academic staff section.\n\n:::tip\nFor more information about LMU and their job offerings, visit their official website.\n:::\n",
+    "zh": {
+      "name": "慕尼黑大学"
+    }
   },
   "lofter": {
     "routes": {

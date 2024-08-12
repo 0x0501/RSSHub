@@ -8814,6 +8814,19 @@
       }
     ]
   },
+  "imop.com": {
+    "_name": "imop",
+    "t": [
+      {
+        "title": "全部消息",
+        "docs": "https://docs.rsshub.app/routes/game",
+        "source": [
+          "/"
+        ],
+        "target": "/imop/tianshu"
+      }
+    ]
+  },
   "indiansinkuwait.com": {
     "_name": "Indians in Kuwait",
     ".": [
@@ -10192,6 +10205,19 @@
           "/"
         ],
         "target": "/lkong/thread/:id"
+      }
+    ]
+  },
+  "lmu.de": {
+    "_name": "Ludwig Maximilian University of Munich",
+    "www": [
+      {
+        "title": "Job Openings",
+        "docs": "https://docs.rsshub.app/routes/university",
+        "source": [
+          "/en/about-lmu/working-at-lmu/job-portal/academic-staff/"
+        ],
+        "target": "/lmu/lmu/jobs"
       }
     ]
   },
