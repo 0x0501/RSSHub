@@ -1,10 +1,10 @@
 import { DataItem, Route } from '@/types';
 import logger from '@/utils/logger';
-import { parseDate } from '@/utils/parse-date';
 import puppeteer from '@/utils/puppeteer';
+import dayjs from 'dayjs';
 
 // obj.records[]
-interface RecruitmentData {
+export interface RecruitmentData {
     docid: number; // 招聘公告ID，查看详细信息需要
     parentId: number; // 未知，查看详细信息需要
     docpubtime: number; // 招聘信息发布时间
@@ -17,7 +17,7 @@ interface RecruitmentData {
     organ: string; // 招聘单位
 }
 
-interface RecruitmentDataRecord {
+export interface RecruitmentDataRecord {
     records: RecruitmentData[];
     total: number;
 }
@@ -35,7 +35,7 @@ interface CompanyInfoData {
     htmlcontent: string; // 招聘信息详细内容，有html标签
 }
 
-interface CompanyInfoDataWrapper {
+export interface CompanyInfoDataWrapper {
     msg: string;
     obj: CompanyInfoData;
     status: string;
@@ -89,9 +89,9 @@ export const route: Route = {
                 title: entry.doctitle,
                 link: `https://rczp.china-railway.com.cn/page/platform/company_info_del.html?parentId=${entry.parentId}&jmetazpxxid=${entry.docid}`,
                 author: entry.organ,
-                pubDate: parseDate(entry.docpubtime),
-                updated: parseDate(entry.opertime),
-                description: `该招聘的时间为 ${parseDate(entry.docpubtime)} 至 ${parseDate(entry.invalidtime)}，目前已结束，无法查看详细公告内容`,
+                pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                updated: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                description: `该招聘的时间为 ${dayjs(entry.docpubtime).format('MM/DD/YYYY')} 至 ${dayjs(entry.invalidtime).format('MM/DD/YYYY')}，目前已结束，无法查看详细公告内容。`,
             }));
 
         // 正在招聘的公告
@@ -102,13 +102,13 @@ export const route: Route = {
 
             const deepLinkResponse = await page.waitForResponse((res) => res.url().includes('getinfo'));
             const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
-            // await page.close();
+            // await newPage.close();
 
             return {
                 title: entry.doctitle,
                 link: deepLink,
-                pubDate: parseDate(entry.docpubtime),
-                updated: parseDate(entry.opertime),
+                pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                updated: dayjs(entry.opertime).format('MM/DD/YYYY'),
                 author: entry.organ,
                 description: deepLinkResponseJson.obj.htmlcontent,
             };
