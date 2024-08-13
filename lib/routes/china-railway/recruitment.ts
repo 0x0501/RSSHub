@@ -1,4 +1,5 @@
 import { DataItem, Route } from '@/types';
+import cache from '@/utils/cache';
 import logger from '@/utils/logger';
 import puppeteer from '@/utils/puppeteer';
 import dayjs from 'dayjs';
@@ -95,29 +96,63 @@ export const route: Route = {
             }));
 
         // 正在招聘的公告
-        const fetchDetailInfo = async (entry: RecruitmentData): Promise<DataItem> => {
-            const deepLink = `https://rczp.china-railway.com.cn/page/platform/company_info_del.html?parentId=${entry.parentId}&jmetazpxxid=${entry.docid}`;
-            // const newPage = await browser.newPage();
-            await page.goto(deepLink, { waitUntil: 'domcontentloaded' });
+        // const fetchDetailInfo = async (entry: RecruitmentData): Promise<DataItem> => {
+        //     const deepLink = `https://rczp.china-railway.com.cn/page/platform/company_info_del.html?parentId=${entry.parentId}&jmetazpxxid=${entry.docid}`;
+        //     // const newPage = await browser.newPage();
+        //     await page.goto(deepLink, { waitUntil: 'domcontentloaded' });
 
-            const deepLinkResponse = await page.waitForResponse((res) => res.url().includes('getinfo'));
-            const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
-            // await newPage.close();
+        //     const deepLinkResponse = await page.waitForResponse((res) => res.url().includes('getinfo'));
+        //     const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
+        //     // await newPage.close();
 
-            return {
-                title: entry.doctitle,
-                link: deepLink,
-                pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
-                updated: dayjs(entry.opertime).format('MM/DD/YYYY'),
-                author: entry.organ,
-                description: deepLinkResponseJson.obj.htmlcontent,
-            };
-        };
+        //     return {
+        //         title: entry.doctitle,
+        //         link: deepLink,
+        //         pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+        //         updated: dayjs(entry.opertime).format('MM/DD/YYYY'),
+        //         author: entry.organ,
+        //         description: deepLinkResponseJson.obj.htmlcontent,
+        //     };
+        // };
+
+        // 使用cache
+        const itemsStillOpen = await Promise.all(
+            responseJson
+                .filter((i) => Number.parseInt(i.infostate) === 1)
+                .map((entry) =>
+                    cache.tryGet(entry.docid.toString(), async () => {
+                        const deepLink = `https://rczp.china-railway.com.cn/page/platform/company_info_del.html?parentId=${entry.parentId}&jmetazpxxid=${entry.docid}`;
+                        // const newPage = await browser.newPage();
+                        logger.info(`Goto: ${deepLink}`);
+                        await page.goto(deepLink, { waitUntil: 'domcontentloaded' });
+
+                        const deepLinkResponse = await page.waitForResponse((res) => {
+                            logger.info(res.url());
+
+                            if (res.url().includes('getinfo')) {
+                                logger.info(`Get ====> ${res.url()}`);
+                            }
+                            return res.url().includes('getinfo');
+                        });
+                        const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
+                        // await newPage.close();
+
+                        return {
+                            title: entry.doctitle,
+                            link: deepLink,
+                            pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                            updated: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                            author: entry.organ,
+                            description: deepLinkResponseJson.obj.htmlcontent,
+                        };
+                    })
+                )
+        );
 
         // 将Promise转为同步操作
-        const itemsStillOpenPromises = responseJson.filter((i) => Number.parseInt(i.infostate) === 1).map((element) => fetchDetailInfo(element));
+        // const itemsStillOpenPromises = responseJson.filter((i) => Number.parseInt(i.infostate) === 1).map((element) => fetchDetailInfo(element));
 
-        const itemsStillOpen = await Promise.all(itemsStillOpenPromises);
+        // const itemsStillOpen = await Promise.all(itemsStillOpenPromises);
 
         // merge `itemsStillOpen` and `itemsClosed` together
 

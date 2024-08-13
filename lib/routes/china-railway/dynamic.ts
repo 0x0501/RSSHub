@@ -3,6 +3,7 @@ import logger from '@/utils/logger';
 import puppeteer from '@/utils/puppeteer';
 import { CompanyInfoDataWrapper, RecruitmentData } from './recruitment';
 import dayjs from 'dayjs';
+import cache from '@/utils/cache';
 
 export const route: Route = {
     path: '/dynamic',
@@ -50,38 +51,72 @@ export const route: Route = {
                 description: `该招聘动态的有效期截止到${dayjs(entry.invalidtime).format('MM/DD/YYYY')}，目前已结束，无法查看详细内容。`,
             }));
 
-        // 可以查看的招聘动态, 使用cache
-        const fetchDetailInfo = async (entry: RecruitmentData): Promise<DataItem> => {
-            const deepLink = `https://rczp.china-railway.com.cn/page/platform/company_dynamic_del.html?parentId=${entry.parentId}&jmetazpdtid=${entry.docid}`;
-            const newPage = await browser.newPage();
-            logger.info(`Goto: ${deepLink}`);
-            await newPage.goto(deepLink, { waitUntil: 'domcontentloaded' });
+        // 可以查看的招聘动态
+        // const fetchDetailInfo = async (entry: RecruitmentData): Promise<DataItem> => {
+        //     const deepLink = `https://rczp.china-railway.com.cn/page/platform/company_dynamic_del.html?parentId=${entry.parentId}&jmetazpdtid=${entry.docid}`;
+        //     const newPage = await browser.newPage();
+        //     logger.info(`Goto: ${deepLink}`);
+        //     await newPage.goto(deepLink, { waitUntil: 'domcontentloaded' });
 
-            const deepLinkResponse = await newPage.waitForResponse((res) => {
-                logger.info(res.url());
+        //     const deepLinkResponse = await newPage.waitForResponse((res) => {
+        //         logger.info(res.url());
 
-                if (res.url().includes('getInfoZpdt')) {
-                    logger.info(`Get ====> ${res.url()}`);
-                }
-                return res.url().includes('getInfoZpdt');
-            });
-            const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
-            await newPage.close();
+        //         if (res.url().includes('getInfoZpdt')) {
+        //             logger.info(`Get ====> ${res.url()}`);
+        //         }
+        //         return res.url().includes('getInfoZpdt');
+        //     });
+        //     const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
+        //     await newPage.close();
 
-            return {
-                title: entry.doctitle,
-                link: deepLink,
-                pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
-                updated: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
-                author: entry.organ,
-                description: deepLinkResponseJson.obj.htmlcontent,
-            };
-        };
+        //     return {
+        //         title: entry.doctitle,
+        //         link: deepLink,
+        //         pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+        //         updated: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+        //         author: entry.organ,
+        //         description: deepLinkResponseJson.obj.htmlcontent,
+        //     };
+        // };
+
+        // 使用cache
+        const itemsStillOpen = await Promise.all(
+            responseJson
+                .filter((i) => Number.parseInt(i.infostate) === 1)
+                .map((entry) =>
+                    cache.tryGet(entry.docid.toString(), async () => {
+                        const deepLink = `https://rczp.china-railway.com.cn/page/platform/company_dynamic_del.html?parentId=${entry.parentId}&jmetazpdtid=${entry.docid}`;
+                        const newPage = await browser.newPage();
+                        logger.info(`Goto: ${deepLink}`);
+                        await newPage.goto(deepLink, { waitUntil: 'domcontentloaded' });
+
+                        const deepLinkResponse = await newPage.waitForResponse((res) => {
+                            logger.info(res.url());
+
+                            if (res.url().includes('getInfoZpdt')) {
+                                logger.info(`Get ====> ${res.url()}`);
+                            }
+                            return res.url().includes('getInfoZpdt');
+                        });
+                        const deepLinkResponseJson: CompanyInfoDataWrapper = await deepLinkResponse.json();
+                        await newPage.close();
+
+                        return {
+                            title: entry.doctitle,
+                            link: deepLink,
+                            pubDate: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                            updated: dayjs(entry.docpubtime).format('MM/DD/YYYY'),
+                            author: entry.organ,
+                            description: deepLinkResponseJson.obj.htmlcontent,
+                        };
+                    })
+                )
+        );
 
         // 将Promise转为同步操作
-        const itemsStillOpenPromises = responseJson.filter((i) => Number.parseInt(i.infostate) === 1).map((element) => fetchDetailInfo(element));
+        // const itemsStillOpenPromises = responseJson.filter((i) => Number.parseInt(i.infostate) === 1).map((element) => fetchDetailInfo(element));
 
-        const itemsStillOpen = await Promise.all(itemsStillOpenPromises);
+        // const itemsStillOpen = await Promise.all(itemsStillOpenPromises);
 
         // merge `itemsStillOpen` and `itemsClosed` together
 
