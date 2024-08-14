@@ -1158,6 +1158,12 @@
   "/china/news/military": [
     "jiaaoMario"
   ],
+  "/china-railway/dynamic": [
+    "anonymous"
+  ],
+  "/china-railway/recruitment": [
+    "anonymous"
+  ],
   "/chinadegrees/:province?": [
     "TonyRL"
   ],

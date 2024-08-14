@@ -12051,6 +12051,38 @@
     "name": "China.com 中华网",
     "url": "finance.china.com"
   },
+  "china-railway": {
+    "routes": {
+      "/dynamic": {
+        "path": "/dynamic",
+        "example": "/china-railway/dynamic",
+        "url": "rczp.china-railway.com.cn",
+        "categories": [
+          "government"
+        ],
+        "name": "招聘动态",
+        "maintainers": [
+          "anonymous"
+        ],
+        "location": "dynamic.ts"
+      },
+      "/recruitment": {
+        "path": "/recruitment",
+        "example": "/china-railway/recruitment",
+        "url": "rczp.china-railway.com.cn",
+        "categories": [
+          "government"
+        ],
+        "name": "招聘信息",
+        "maintainers": [
+          "anonymous"
+        ],
+        "location": "recruitment.ts"
+      }
+    },
+    "name": "中国铁路人才招聘网",
+    "url": "rczp.china-railway.com.cn"
+  },
   "chinadegrees": {
     "routes": {
       "/:province?": {
