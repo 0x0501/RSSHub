@@ -160,7 +160,7 @@ interface RouteItem {
     /**
      * The handler function of the route
      */
-    handler: (ctx: Context) => Promise<Data> | Data;
+    handler: (ctx: Context) => Promise<Data | { title: string; item: string | Record<string, any> }> | Data;
 
     /**
      * An example URL of the route
