@@ -913,6 +913,9 @@
   "/buaa/sme/:path{.+}?": [
     "MeanZhang"
   ],
+  "/buaa/lib/space/:path{newbook.*}": [
+    "OverflowCat"
+  ],
   "/buaa/news/:type": [
     "AlanDecode"
   ],
@@ -2194,7 +2197,7 @@
   ],
   "/gdsrx/:id?": [],
   "/gdut/oa_news/:type?": [
-    "Jim Kirisame"
+    "jim-kirisame"
   ],
   "/gelonghui/home/:tag?": [
     "TonyRL"
